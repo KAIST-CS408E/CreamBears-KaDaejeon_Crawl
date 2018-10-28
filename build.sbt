@@ -8,5 +8,6 @@ lazy val root = (project in file(".")).
       version      := "0.0.0"
     )),
     name := "CreamBears-KaDaejeon_Crawl",
-    libraryDependencies += scalaTest % Test
+    libraryDependencies += scalaTest % Test,
+    libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
   )
