@@ -1,5 +1,6 @@
 package services.xis.kadaejeon;
 
+import java.util.ArrayList;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
@@ -16,19 +17,15 @@ class Main {
 	static String cookie = "_ga=GA1.2.1295979066.1540732371; _gid=GA1.2.894918707.1540732371; csrftoken=njSmcPEycY44hHMIqb1kkwEghfJNgqiaU230y5cXygpUI6qLmbNDJtsFHCkEmrDZ; sessionid=lt4v8bqjzwk4oi49vensuymkdrph8np1; _gat_gtag_UA_116575140_1=1";
 	static int max_index = 0;
 
-	public static void getPageContent (int index) {
-
-	}
-
-    public static void getMaxPageIndex () {
-        try {
-            URL obj = new URL(url);
-	        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+	public static StringBuffer getPageContent (String link) {
+		try {
+			URL obj = new URL(link);
+			HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 		    con.setRequestMethod("GET");
 			con.setRequestProperty("Cookie", cookie);
 			con.setUseCaches(true); 
 			con.connect();
-            int responseCode = con.getResponseCode();
+            
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             String inputLine;
             StringBuffer response = new StringBuffer();
@@ -38,6 +35,50 @@ class Main {
             }
             in.close();
 
+			return response;
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static void getArticleContent (int index) {
+		try {
+			StringBuffer response = getPageContent(url + index);
+			Document doc = Jsoup.parse(response.toString());
+
+			String title = "";
+			String content = "";
+			ArrayList comments_list = new ArrayList<String>() ;
+	
+			Elements header_elems = doc.getElementsByTag("h1");
+			for (Element elem : header_elems) {
+				title = elem.text();
+			}
+
+			Elements content_elems = doc.getElementsByClass("forum-content justify-content-center");
+			for (Element elem : content_elems) {
+				content = elem.text();
+			}
+
+			Elements comment_elems = doc.getElementsByClass("comment-body");
+			for (Element elem : comment_elems) {
+				Elements comment_content_elems = elem.getElementsByClass("float-left");
+				for(Element comment_content_elem : comment_content_elems) {
+					comments_list.add(comment_content_elem.text());
+				}
+			}
+
+			Article article = new Article(title, content, comments_list);
+		}
+		catch (Exception e) {
+
+		}	
+	}
+
+    public static void getMaxPageIndex () {
+        try {
+			StringBuffer response = getPageContent(url);
 			Document doc = Jsoup.parse(response.toString());
 			Elements table = doc.select("table");
 
@@ -51,9 +92,9 @@ class Main {
 					}
 				}
 			}
-            System.out.println("response code : " + responseCode);
 			System.out.println("max_index : " + max_index);
-			con.disclose();
+			getArticleContent(max_index);			
+			getArticleContent(max_index - 1);
         }
         catch (Exception e) {
             System.out.println("Excpetion : " + e);
@@ -62,6 +103,6 @@ class Main {
 
     public static void main (String[] args) {
         System.out.println("Hello world!");
-        getConnection();
+        getMaxPageIndex();
     }
 }
