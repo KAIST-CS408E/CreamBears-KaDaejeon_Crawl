@@ -6,15 +6,18 @@ class Article {
 	private String title;
 	private String content;
 	private ArrayList comments;
+	private int index;
 
 	Article () {
 		this.comments = new ArrayList<String>();
+		this.index = 0;
 	}
 
-	Article(String title, String content, ArrayList comments) {
+	Article(String title, String content, ArrayList comments, int index) {
 		this.title = title;
 		this.content = content;
 		this.comments = comments;
+		this.index = index;
 	}
 
 	void setTitle (String title) {
@@ -39,6 +42,14 @@ class Article {
 
 	ArrayList getComments () {
 		return this.comments;
+	}
+
+	void setIndex (int index) {
+		this.index = index;
+	}
+
+	int getIndex () {
+		return this.index;
 	}
 
 }
