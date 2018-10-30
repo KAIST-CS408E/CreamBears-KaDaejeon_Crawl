@@ -1,9 +1,7 @@
 package services.xis.kadaejeon;
 
 import java.util.ArrayList;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -42,7 +40,7 @@ class Main {
 		}
 	}
 
-	public static void getArticleContent (int index) {
+	public static Article getArticleContent (int index) {
 		try {
 			StringBuffer response = getPageContent(url + index);
 			Document doc = Jsoup.parse(response.toString());
@@ -70,9 +68,10 @@ class Main {
 			}
 
 			Article article = new Article(title, content, comments_list);
+			return article;
 		}
 		catch (Exception e) {
-
+			return null;
 		}	
 	}
 
@@ -93,13 +92,33 @@ class Main {
 				}
 			}
 			System.out.println("max_index : " + max_index);
-			getArticleContent(max_index);			
-			getArticleContent(max_index - 1);
+			for (int  i = 1; i <= max_index; i++) {
+				System.out.println(i);
+				writeArticleFile(getArticleContent(i));			
+			}
         }
         catch (Exception e) {
             System.out.println("Excpetion : " + e);
         }
     }
+
+	public static void writeArticleFile (Article article) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("output.txt"));
+			writer.write(article.getTitle());
+			writer.write("\n");
+			writer.write(article.getContent());
+			writer.write("\n");
+			for (Object elem : article.getComments()) {
+				writer.write(elem.toString());
+				writer.write("\n");
+			}
+			writer.close();
+		}
+		catch (Exception e) {
+
+		}		
+	}
 
     public static void main (String[] args) {
         System.out.println("Hello world!");
