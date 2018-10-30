@@ -19,7 +19,24 @@ import com.twitter.penguin.korean.TwitterKoreanProcessorJava;
 import com.twitter.penguin.korean.phrase_extractor.KoreanPhraseExtractor;
 import com.twitter.penguin.korean.tokenizer.KoreanTokenizer;
 
+import java.lang.Thread;
+
 class Main {
+
+	static class CrawlThread extends Thread {
+		private int index;
+
+		CrawlThread (int index) {
+			this.index = index;
+		}
+
+		public void run () {
+			Article article = getArticleContent(this.index);
+			writeArticleFile(article);
+			System.out.println(this.index + "finished");
+		}	
+	}
+
     static String url = "https://talkyou.in/pages/KaDaejeon/posts/";
 	static String cookie = "_ga=GA1.2.1295979066.1540732371; _gid=GA1.2.894918707.1540732371; csrftoken=njSmcPEycY44hHMIqb1kkwEghfJNgqiaU230y5cXygpUI6qLmbNDJtsFHCkEmrDZ; sessionid=lt4v8bqjzwk4oi49vensuymkdrph8np1; _gat_gtag_UA_116575140_1=1";
 	static int max_index = 0;
@@ -167,8 +184,8 @@ class Main {
         System.out.println("Hello world!");
         int maxIndex = getMaxPageIndex();
 		for (int i = 1; i <= maxIndex; i++) {
-			Article article = getArticleContent(i);
-			writeArticleFile(article);
+			CrawlThread ct = new CrawlThread(i);
+			ct.start();
 		}		
     }
 }
