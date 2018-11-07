@@ -31,14 +31,19 @@ class Main {
 		}
 
 		public void run () {
-			Article article = getArticleContent(this.index);
-			writeArticleFile(article);
-			System.out.println(this.index + "finished");
+			for (int i = 0; i < 10; i++) {
+				//Article article = getArticleContent(this.index + i);
+				//writeArticleFile(article);
+				//System.out.println(this.index + i + "finished");
+				int ind = this.index + i;
+				System.out.println("" + ind);
+				getArticleContent(this.index + i);
+			}
 		}	
 	}
 
     static String url = "https://talkyou.in/pages/KaDaejeon/posts/";
-	static String cookie = "_ga=GA1.2.1295979066.1540732371; _gid=GA1.2.894918707.1540732371; csrftoken=njSmcPEycY44hHMIqb1kkwEghfJNgqiaU230y5cXygpUI6qLmbNDJtsFHCkEmrDZ; sessionid=lt4v8bqjzwk4oi49vensuymkdrph8np1; _gat_gtag_UA_116575140_1=1";
+	static String cookie = "_ga=GA1.2.1295979066.1540732371; _gid=GA1.2.101481836.1541589024; _gat_gtag_UA_116575140_1=1; csrftoken=39d4Zm5LNKp0a47D5VTyUJGG5Q5rRx0dXq6EroREob33algvdRdhWxQzIzsZcC0W; sessionid=ilabv4aa4bp07valqpnq1ekmt3r3s1n9";
 	static int max_index = 0;
 
 	public static StringBuffer getPageContent (String link) {
@@ -68,7 +73,7 @@ class Main {
 
 	public static Article getArticleContent (int index) {
 		try {
-			StringBuffer response = getPageContent(url + index);
+			StringBuffer response = getPageContent(url + index + "/");
 			Document doc = Jsoup.parse(response.toString());
 
 			String title = "";
@@ -93,8 +98,21 @@ class Main {
 				}
 			}
 
-			Article article = new Article(title, content, comments_list, index);
-			return article;
+			BufferedWriter writer = new BufferedWriter(new FileWriter("write_result/" + index + ".txt"));
+			writer.write(title);
+			writer.write("\n");
+			writer.write(content);
+			writer.write("\n");
+
+			for (Object elem : comments_list) {
+				writer.write(elem.toString());
+				writer.write("\n");
+			}
+			writer.close();
+			return null;
+
+			//Article article = new Article(title, content, comments_list, index);
+			//return article;
 		}
 		catch (Exception e) {
 			return null;
@@ -182,10 +200,25 @@ class Main {
 
     public static void main (String[] args) {
         System.out.println("Hello world!");
-        int maxIndex = getMaxPageIndex();
+		int maxIndex = getMaxPageIndex();
 		for (int i = 1; i <= maxIndex; i++) {
-			CrawlThread ct = new CrawlThread(i);
+			getArticleContent(i);
+			System.out.println("" + i);
+		}		
+/*
+        int maxIndex = getMaxPageIndex();
+		int limit = maxIndex / 10;
+		for (int i = 0; i < limit; i++) {
+			CrawlThread ct = new CrawlThread(i * 10 + 1);
 			ct.start();
 		}		
+		int remainder = maxIndex - 10 * limit;
+		for (int i = 0 ; i < remainder; i++) {
+			//Article article = getArticleContent(limit * 10 + i);
+			//writeArticleFile(article);
+			//System.out.println(limit * 10 + i + "finished");
+			getArticleContent(limit * 10 + i);
+		}
+*/
     }
 }
